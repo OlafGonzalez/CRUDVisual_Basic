@@ -1,52 +1,55 @@
 ﻿Imports System.Data
 Imports System.Data.SqlClient
 Imports System.Security.Cryptography
-
+Imports System.IO
+Imports System.Text
 Partial Class Alumnos_Default
     Inherits System.Web.UI.Page
     Private Sub btnInsertar_Click(sender As Object, e As EventArgs) Handles btnInsertar.Click
-        'Try
-        '    'Dim sql As String
-        '    Dim mycmd As New SqlCommand("SPInsertar")
-        '    Dim reader As SqlDataReader
-        '    Dim conexion As New SqlConnection(get_connetionString())
-        '    conexion.Open()
-        '    'sql = "INSERT INTO [dbo].[Alumnos]([matricula],[nombre],[paterno],[materno],[cve_estado],[cve_municipio],[cve_localidad]) VALUES (@matricula,@nombre,@paterno,@materno,@cve_estado,@cve_municipio,@cve_localidad)"
-        '    'sql = "INSERT INTO [dbo].[Alumnos]([matricula],[nombre],[paterno],[materno],[clave_entidad],[clave_municipio],[clave_localidad]) VALUES (@matricula,@nombre,@paterno,@materno,@clave_entidad,@clave_municipio,@clave_localidad)"
-        '    With mycmd
-        '        '.CommandText = sql
-        '        .CommandType = CommandType.StoredProcedure
-        '        .Connection = conexion
-        '        .Parameters.AddWithValue("@matricula", txtMatricula.Text)
-        '        .Parameters.AddWithValue("@nombre", Encriptar(txtNombre.Text))
-        '        .Parameters.AddWithValue("@paterno", txtPaterno.Text)
-        '        .Parameters.AddWithValue("@materno", txtMaterno.Text)
-        '        .Parameters.AddWithValue("@clave_entidad", ddEstado.SelectedValue.ToString)
-        '        .Parameters.AddWithValue("@clave_municipio", ddMunicipio.SelectedValue.ToString)
-        '        .Parameters.AddWithValue("@clave_localidad", ddLocalidad.SelectedValue.ToString)
+        Try
+            'Dim sql As String
+            Dim mycmd As New SqlCommand("SPInsertar")
+            Dim reader As SqlDataReader
+            Dim conexion As New SqlConnection(get_connetionString())
+            conexion.Open()
+            'sql = "INSERT INTO [dbo].[Alumnos]([matricula],[nombre],[paterno],[materno],[cve_estado],[cve_municipio],[cve_localidad]) VALUES (@matricula,@nombre,@paterno,@materno,@cve_estado,@cve_municipio,@cve_localidad)"
+            'sql = "INSERT INTO [dbo].[Alumnos]([matricula],[nombre],[paterno],[materno],[clave_entidad],[clave_municipio],[clave_localidad]) VALUES (@matricula,@nombre,@paterno,@materno,@clave_entidad,@clave_municipio,@clave_localidad)"
+            With mycmd
+                '.CommandText = sql
+                .CommandType = CommandType.StoredProcedure
+                .Connection = conexion
+                .Parameters.AddWithValue("@matricula", Crypto.Encrypt(txtMatricula.Text))
+                .Parameters.AddWithValue("@nombre", Crypto.Encrypt(txtNombre.Text))
+                .Parameters.AddWithValue("@paterno", Crypto.Encrypt(txtPaterno.Text))
+                .Parameters.AddWithValue("@materno", Crypto.Encrypt(txtMaterno.Text))
+                .Parameters.AddWithValue("@clave_entidad", ddEstado.SelectedValue.ToString)
+                .Parameters.AddWithValue("@clave_municipio", ddMunicipio.SelectedValue.ToString)
+                .Parameters.AddWithValue("@clave_localidad", ddLocalidad.SelectedValue.ToString)
 
-        '    End With
-        '    reader = mycmd.ExecuteReader
+            End With
+            reader = mycmd.ExecuteReader
 
-        '    conexion.Close()
-        '    txtMatricula.Text = ""
-        '    txtNombre.Text = ""
-        '    txtPaterno.Text = ""
-        '    txtMaterno.Text = ""
-        '    SqlDataSourceAlumnos.DataBind()
-        '    gvAlumnos.DataBind()
+            conexion.Close()
+            txtMatricula.Text = ""
+            txtNombre.Text = ""
+            txtPaterno.Text = ""
+            txtMaterno.Text = ""
+            SqlDataSourceAlumnos.DataBind()
+            gvAlumnos.DataBind()
 
-        'Catch ex As Exception
-        '    Response.Write(ex.ToString)
-        'End Try
-        Dim WSCrud As New ServiceReferenceCrudOlaf.WSCrudSoapClient
-        Dim Resultado As String = WSCrud.Insertar(txtMatricula.Text, txtNombre.Text, txtPaterno.Text, txtMaterno.Text, ddEstado.SelectedValue.ToString, ddMunicipio.SelectedValue.ToString, ddLocalidad.SelectedValue.ToString)
-        txtMatricula.Text = ""
-        txtNombre.Text = ""
-        txtPaterno.Text = ""
-        txtMaterno.Text = ""
-        SqlDataSourceAlumnos.DataBind()
-        gvAlumnos.DataBind()
+        Catch ex As Exception
+            Response.Write(ex.ToString)
+        End Try
+
+        ''WEBSERVICe
+        'Dim WSCrud As New ServiceReferenceCrudOlaf.WSCrudSoapClient
+        'Dim Resultado As String = WSCrud.Insertar(txtMatricula.Text, txtNombre.Text, txtPaterno.Text, txtMaterno.Text, ddEstado.SelectedValue.ToString, ddMunicipio.SelectedValue.ToString, ddLocalidad.SelectedValue.ToString)
+        'txtMatricula.Text = ""
+        'txtNombre.Text = ""
+        'txtPaterno.Text = ""
+        'txtMaterno.Text = ""
+        'SqlDataSourceAlumnos.DataBind()
+        'gvAlumnos.DataBind()
     End Sub
 
     Private Sub ddEstado_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ddEstado.SelectedIndexChanged
@@ -68,6 +71,11 @@ Partial Class Alumnos_Default
         txtPaterno.Text = gvAlumnos.SelectedRow.Cells(3).Text.ToString
         txtMaterno.Text = gvAlumnos.SelectedRow.Cells(4).Text.ToString
         'ddEstado.SelectedItem = gvAlumnos.SelectedRow.Cells(5).Text.ToString
+        'ddEstado.SelectedItem.Enabled = SqlDataSourceEstados.SelectCommand = "
+        'SELECT  estado
+        'FROM     dbo.Estado
+        'WHERE (estado = '" + gvAlumnos.SelectedRow.Cells(5).Text.ToString + "')"
+
 
         For Each item As ListItem In ddEstado.Items
             item.Selected = False
@@ -81,88 +89,106 @@ Partial Class Alumnos_Default
 
         Next
 
-        For Each item2 As ListItem In ddMunicipio.Items
-            item2.Selected = False
-            If (item2.Text = gvAlumnos.SelectedRow.Cells(6).Text.ToString) Then
-                item2.Selected = True
-                ddLocalidad.Visible = True
-                SqlDataSourceLocalidades.SelectCommand = "SELECT clave_localidad, localidad FROM Localidades WHERE (clave_entidad =" + ddEstado.SelectedValue.ToString + ") AND (clave_municipio =" + ddMunicipio.SelectedValue.ToString + ") ORDER BY localidad"
-                SqlDataSourceLocalidades.DataBind()
-                MsgBox("Selecionado:" + item2.Text)
-            End If
-        Next
+        'For Each item2 As ListItem In ddMunicipio.Items
+        '    item2.Selected = False
+        '    If (item2.Text = gvAlumnos.SelectedRow.Cells(6).Text.ToString) Then
+        '        item2.Selected = True
+        '        ddLocalidad.Visible = True
+        '        SqlDataSourceLocalidades.SelectCommand = "SELECT clave_localidad, localidad FROM Localidades WHERE (clave_entidad =" + ddEstado.SelectedValue.ToString + ") AND (clave_municipio =" + ddMunicipio.SelectedValue.ToString + ") ORDER BY localidad"
+        '        SqlDataSourceLocalidades.DataBind()
+        '        MsgBox("Selecionado:" + item2.Text)
+        '    End If
+        'Next
 
 
     End Sub
 
     Private Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
-        Try
-            Dim sql As String
-            Dim mycmd As New SqlCommand("SPDelete")
-            Dim reader As SqlDataReader
-            Dim conexion As New SqlConnection(get_connetionString())
-            conexion.Open()
-            'sql = "DELETE FROM [dbo].[Alumnos] WHERE [matricula] = @matricula"
-            With mycmd
-                '.CommandText = sql
-                .CommandType = CommandType.StoredProcedure
-                .Connection = conexion
-                .Parameters.AddWithValue("@matricula", txtMatricula.Text)
-                '.Parameters.AddWithValue("@nombre", txtNombre.Text)'
-                '.Parameters.AddWithValue("@paterno", txtPaterno.Text)'
-                '.Parameters.AddWithValue("@materno", txtMaterno.Text)'
-                '.Parameters.AddWithValue("@cve_estado", DropDownMun.SelectedValue.ToString)
-                '.Parameters.AddWithValue("@cve_municipio", DropDownMun.SelectedItem.ToString)
-                '.Parameters.AddWithValue("@cve_localidad", txtVisitas.Text)
-            End With
-            reader = mycmd.ExecuteReader
-            conexion.Close()
-            SqlDataSourceAlumnos.DataBind()
-            gvAlumnos.DataBind()
+        'Try
+        '    'Dim sql As String
+        '    Dim mycmd As New SqlCommand("SPDelete")
+        '    Dim reader As SqlDataReader
+        '    Dim conexion As New SqlConnection(get_connetionString())
+        '    conexion.Open()
+        '    'sql = "DELETE FROM [dbo].[Alumnos] WHERE [matricula] = @matricula"
+        '    With mycmd
+        '        '.CommandText = sql
+        '        .CommandType = CommandType.StoredProcedure
+        '        .Connection = conexion
+        '        .Parameters.AddWithValue("@matricula", txtMatricula.Text)
+        '        '.Parameters.AddWithValue("@nombre", txtNombre.Text)'
+        '        '.Parameters.AddWithValue("@paterno", txtPaterno.Text)'
+        '        '.Parameters.AddWithValue("@materno", txtMaterno.Text)'
+        '        '.Parameters.AddWithValue("@cve_estado", DropDownMun.SelectedValue.ToString)
+        '        '.Parameters.AddWithValue("@cve_municipio", DropDownMun.SelectedItem.ToString)
+        '        '.Parameters.AddWithValue("@cve_localidad", txtVisitas.Text)
+        '    End With
+        '    reader = mycmd.ExecuteReader
+        '    conexion.Close()
+        '    SqlDataSourceAlumnos.DataBind()
+        '    gvAlumnos.DataBind()
 
-        Catch ex As Exception
-            Response.Write(ex.ToString)
-        End Try
+        'Catch ex As Exception
+        '    Response.Write(ex.ToString)
+        'End Try
+        Dim WSCrud As New ServiceReferenceCrudOlaf1.WSCrudSoapClient
+        Dim resultado As String = WSCrud.Eliminar(txtMatricula.Text)
+        txtMatricula.Text = ""
+        txtNombre.Text = ""
+        txtPaterno.Text = ""
+        txtMaterno.Text = ""
+        SqlDataSourceAlumnos.DataBind()
+        gvAlumnos.DataBind()
     End Sub
 
     Private Sub btnActualizar_Click(sender As Object, e As EventArgs) Handles btnActualizar.Click
-        Try
-            Dim sql As String
-            Dim mycmd As New SqlCommand("SPActualizar")
-            Dim reader As SqlDataReader
-            Dim conexion As New SqlConnection(get_connetionString())
-            conexion.Open()
-            'sql = "INSERT INTO [dbo].[Alumnos]([matricula],[nombre],[paterno],[materno],[cve_estado],[cve_municipio],[cve_localidad]) VALUES (@matricula,@nombre,@paterno,@materno,@cve_estado,@cve_municipio,@cve_localidad)"
-            '           sql = "UPDATE [dbo].[Alumnos]
-            'SET [nombre]= @nombre,
-            '	[materno]=@materno,
-            '	[paterno] = @paterno,
-            '       [clave_entidad] = @clave_entidad,
-            '       [clave_municipio] = @clave_municipio,
-            '       [clave_localidad] = @clave_localidad
+        'Try
+        '    'Dim sql As String
+        '    Dim mycmd As New SqlCommand("SPActualizar")
+        '    Dim reader As SqlDataReader
+        '    Dim conexion As New SqlConnection(get_connetionString())
+        '    conexion.Open()
+        '    'sql = "INSERT INTO [dbo].[Alumnos]([matricula],[nombre],[paterno],[materno],[cve_estado],[cve_municipio],[cve_localidad]) VALUES (@matricula,@nombre,@paterno,@materno,@cve_estado,@cve_municipio,@cve_localidad)"
+        '    '           sql = "UPDATE [dbo].[Alumnos]
+        '    'SET [nombre]= @nombre,
+        '    '	[materno]=@materno,
+        '    '	[paterno] = @paterno,
+        '    '       [clave_entidad] = @clave_entidad,
+        '    '       [clave_municipio] = @clave_municipio,
+        '    '       [clave_localidad] = @clave_localidad
 
-            ' WHERE ([matricula]=@matricula)"
-            With mycmd
-                '.CommandText = sql
-                .CommandType = CommandType.StoredProcedure
-                .Connection = conexion
-                .Parameters.AddWithValue("@matricula", txtMatricula.Text)
-                .Parameters.AddWithValue("@nombre", txtNombre.Text)
-                .Parameters.AddWithValue("@paterno", txtPaterno.Text)
-                .Parameters.AddWithValue("@materno", txtMaterno.Text)
-                .Parameters.AddWithValue("@clave_entidad", ddEstado.SelectedValue.ToString)
-                .Parameters.AddWithValue("@clave_municipio", ddMunicipio.SelectedValue.ToString)
-                .Parameters.AddWithValue("@clave_localidad", ddLocalidad.SelectedValue.ToString)
-            End With
-            reader = mycmd.ExecuteReader
+        '    ' WHERE ([matricula]=@matricula)"
+        '    With mycmd
+        '        '.CommandText = sql
+        '        .CommandType = CommandType.StoredProcedure
+        '        .Connection = conexion
+        '        .Parameters.AddWithValue("@matricula", txtMatricula.Text)
+        '        .Parameters.AddWithValue("@nombre", txtNombre.Text)
+        '        .Parameters.AddWithValue("@paterno", txtPaterno.Text)
+        '        .Parameters.AddWithValue("@materno", txtMaterno.Text)
+        '        .Parameters.AddWithValue("@clave_entidad", ddEstado.SelectedValue.ToString)
+        '        .Parameters.AddWithValue("@clave_municipio", ddMunicipio.SelectedValue.ToString)
+        '        .Parameters.AddWithValue("@clave_localidad", ddLocalidad.SelectedValue.ToString)
+        '    End With
+        '    reader = mycmd.ExecuteReader
 
-            conexion.Close()
-            SqlDataSourceAlumnos.DataBind()
-            gvAlumnos.DataBind()
+        '    conexion.Close()
+        '    SqlDataSourceAlumnos.DataBind()
+        '    gvAlumnos.DataBind()
 
-        Catch ex As Exception
-            Response.Write(ex.ToString)
-        End Try
+        'Catch ex As Exception
+        '    Response.Write(ex.ToString)
+        'End Try
+        Dim WSCrud As New ServiceReferenceCrudOlaf1.WSCrudSoapClient
+        Dim resultado As String = WSCrud.Actualizar(txtMatricula.Text, txtNombre.Text, txtPaterno.Text, txtMaterno.Text, ddEstado.SelectedValue.ToString, ddMunicipio.SelectedValue.ToString, ddLocalidad.SelectedValue.ToString)
+        txtMatricula.Text = ""
+        txtNombre.Text = ""
+        txtPaterno.Text = ""
+        txtMaterno.Text = ""
+        ddMunicipio.Visible = False
+        ddLocalidad.Visible = False
+        SqlDataSourceAlumnos.DataBind()
+        gvAlumnos.DataBind()
     End Sub
 
     Public Function get_connetionString() As String
@@ -195,25 +221,64 @@ Partial Class Alumnos_Default
         Return texto
     End Function
 
+    Public Shared Function Desencriptar(ByVal cifrado As String) As String
 
-
-
-    Public Function DecryptData(ByVal encryptedtext As String) As String
-
-        ' Convert the encrypted text string to a byte array.
-        Dim encryptedBytes() As Byte = Convert.FromBase64String(encryptedtext)
-
-        ' Create the stream.
-        Dim ms As New System.IO.MemoryStream
-        ' Create the decoder to write to the stream.
-        Dim decStream As New CryptoStream(ms, TripleDES.Create, System.Security.Cryptography.CryptoStreamMode.Write)
-
-        ' Use the crypto stream to write the byte array to the stream.
-        decStream.Write(encryptedBytes, 0, encryptedBytes.Length)
-        decStream.FlushFinalBlock()
-
-        ' Convert the plaintext stream to a string.
-        Return System.Text.Encoding.Unicode.GetString(ms.ToArray)
     End Function
+
+    Private Sub gvAlumnos_Load(sender As Object, e As EventArgs) Handles gvAlumnos.Load
+
+    End Sub
+
+
+
+    Private Sub gvAlumnos_RowDataBound(sender As Object, e As GridViewRowEventArgs) Handles gvAlumnos.RowDataBound
+
+        If e.Row.RowType = DataControlRowType.DataRow Then
+
+            Dim decryptpassword1 As String = e.Row.Cells(1).Text
+            Dim decryptpassword2 As String = e.Row.Cells(2).Text
+            Dim decryptpassword3 As String = e.Row.Cells(3).Text
+            Dim decryptpassword4 As String = e.Row.Cells(4).Text
+
+            e.Row.Cells(1).Text = Crypto.Decrypt(decryptpassword1)
+            e.Row.Cells(2).Text = Crypto.Decrypt(decryptpassword2)
+            e.Row.Cells(3).Text = Crypto.Decrypt(decryptpassword3)
+            e.Row.Cells(4).Text = Crypto.Decrypt(decryptpassword4)
+
+        End If
+
+
+    End Sub
+
+    Public Class Crypto
+        Private Shared DES As New TripleDESCryptoServiceProvider
+        Private Shared MD5 As New MD5CryptoServiceProvider
+
+        Private Shared Function MD5Hash(ByVal value As String) As Byte()
+            Return MD5.ComputeHash(ASCIIEncoding.ASCII.GetBytes(value))
+        End Function
+
+        Public Shared Function Encrypt(ByVal stringToEncrypt As String) As String
+            Dim key As String = "LlaveProgramacionClienteServidor2"
+
+            DES.Key = Crypto.MD5Hash(key)
+            DES.Mode = CipherMode.ECB
+            Dim Buffer As Byte() = ASCIIEncoding.ASCII.GetBytes(stringToEncrypt)
+            Return Convert.ToBase64String(DES.CreateEncryptor().TransformFinalBlock(Buffer, 0, Buffer.Length))
+        End Function
+
+        Public Shared Function Decrypt(ByVal encryptedString As String) As String
+            Try
+                Dim key As String = "LlaveProgramacionClienteServidor2"
+
+                DES.Key = Crypto.MD5Hash(key)
+                DES.Mode = CipherMode.ECB
+                Dim Buffer As Byte() = Convert.FromBase64String(encryptedString)
+                Return ASCIIEncoding.ASCII.GetString(DES.CreateDecryptor().TransformFinalBlock(Buffer, 0, Buffer.Length))
+            Catch ex As Exception
+                Return "Error"
+            End Try
+        End Function
+    End Class
 
 End Class

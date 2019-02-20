@@ -1,21 +1,95 @@
 ﻿Imports System.Data
 Imports System.Data.SqlClient
+Imports System.Security.Cryptography
 Imports System.Web
 Imports System.Web.Services
 Imports System.Web.Services.Protocols
 
 ' Para permitir que se llame a este servicio web desde un script, usando ASP.NET AJAX, quite la marca de comentario de la línea siguiente.
 ' <System.Web.Script.Services.ScriptService()> _
-<WebService(Namespace:="http://tempuri.org/")> _
-<WebServiceBinding(ConformsTo:=WsiProfiles.BasicProfile1_1)> _
-<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+<WebService(Namespace:="http://tempuri.org/")>
+<WebServiceBinding(ConformsTo:=WsiProfiles.BasicProfile1_1)>
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Public Class WSCrud
     Inherits System.Web.Services.WebService
 
-    <WebMethod()> _
+    <WebMethod()>
     Public Function HelloWorld() As String
         Return "Hola a todos"
     End Function
+
+    <WebMethod>
+    Public Function Actualizar(Matricula As String, Nombre As String, Paterno As String, Materno As String, Clave_entidad As Integer, Clave_municipio As Integer, Clave_localidad As Integer) As String
+        Try
+            'Dim sql As String
+            Dim mycmd As New SqlCommand("SPActualizar")
+            Dim reader As SqlDataReader
+            Dim conexion As New SqlConnection(get_connetionString())
+            conexion.Open()
+            'sql = "INSERT INTO [dbo].[Alumnos]([matricula],[nombre],[paterno],[materno],[cve_estado],[cve_municipio],[cve_localidad]) VALUES (@matricula,@nombre,@paterno,@materno,@cve_estado,@cve_municipio,@cve_localidad)"
+            '           sql = "UPDATE [dbo].[Alumnos]
+            'SET [nombre]= @nombre,
+            '	[materno]=@materno,
+            '	[paterno] = @paterno,
+            '       [clave_entidad] = @clave_entidad,
+            '       [clave_municipio] = @clave_municipio,
+            '       [clave_localidad] = @clave_localidad
+
+            ' WHERE ([matricula]=@matricula)"
+            With mycmd
+                '.CommandText = sql
+                .CommandType = CommandType.StoredProcedure
+                .Connection = conexion
+                .Parameters.AddWithValue("@matricula", Matricula)
+                .Parameters.AddWithValue("@nombre", Nombre)
+                .Parameters.AddWithValue("@paterno", Paterno)
+                .Parameters.AddWithValue("@materno", Materno)
+                .Parameters.AddWithValue("@clave_entidad", Clave_entidad)
+                .Parameters.AddWithValue("@clave_municipio", Clave_municipio)
+                .Parameters.AddWithValue("@clave_localidad", Clave_localidad)
+            End With
+            reader = mycmd.ExecuteReader
+
+            conexion.Close()
+
+
+        Catch ex As Exception
+            ex.ToString()
+        End Try
+        Return "Actualizado"
+    End Function
+
+    <WebMethod()>
+    Public Function Eliminar(Matriculas As String) As String
+        Try
+            'Dim sql As String
+            Dim mycmd As New SqlCommand("SPDelete")
+            Dim reader As SqlDataReader
+            Dim conexion As New SqlConnection(get_connetionString())
+            conexion.Open()
+            'sql = "DELETE FROM [dbo].[Alumnos] WHERE [matricula] = @matricula"
+            With mycmd
+                '.CommandText = sql
+                .CommandType = CommandType.StoredProcedure
+                .Connection = conexion
+                .Parameters.AddWithValue("@matricula", Matriculas)
+                '.Parameters.AddWithValue("@nombre", txtNombre.Text)'
+                '.Parameters.AddWithValue("@paterno", txtPaterno.Text)'
+                '.Parameters.AddWithValue("@materno", txtMaterno.Text)'
+                '.Parameters.AddWithValue("@cve_estado", DropDownMun.SelectedValue.ToString)
+                '.Parameters.AddWithValue("@cve_municipio", DropDownMun.SelectedItem.ToString)
+                '.Parameters.AddWithValue("@cve_localidad", txtVisitas.Text)
+            End With
+            reader = mycmd.ExecuteReader
+            conexion.Close()
+
+
+        Catch ex As Exception
+            ex.ToString()
+        End Try
+        Return "Eliminado"
+    End Function
+
 
     <WebMethod()>
     Public Function Insertar(Matricula As String, Nombre As String, Paterno As String, Materno As String, Clave_entidad As Integer, Clave_municipio As Integer, Clave_localidad As Integer) As String
@@ -45,9 +119,11 @@ Public Class WSCrud
         End Try
         Return "Registro insertado correctamente"
     End Function
+
     Public Function get_connetionString() As String
         Dim SQLServer_Connexion_String As String
         SQLServer_Connexion_String = "Data Source=localhost;Initial Catalog=UPP;User ID=UPPUser2;Password=aaa"
         Return SQLServer_Connexion_String
     End Function
 End Class
+
