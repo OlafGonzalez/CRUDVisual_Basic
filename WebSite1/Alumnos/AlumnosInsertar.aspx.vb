@@ -70,11 +70,6 @@ Partial Class Alumnos_Default
         txtNombre.Text = gvAlumnos.SelectedRow.Cells(2).Text.ToString
         txtPaterno.Text = gvAlumnos.SelectedRow.Cells(3).Text.ToString
         txtMaterno.Text = gvAlumnos.SelectedRow.Cells(4).Text.ToString
-        'ddEstado.SelectedItem = gvAlumnos.SelectedRow.Cells(5).Text.ToString
-        'ddEstado.SelectedItem.Enabled = SqlDataSourceEstados.SelectCommand = "
-        'SELECT  estado
-        'FROM     dbo.Estado
-        'WHERE (estado = '" + gvAlumnos.SelectedRow.Cells(5).Text.ToString + "')"
 
 
         For Each item As ListItem In ddEstado.Items
@@ -82,23 +77,22 @@ Partial Class Alumnos_Default
             If (item.Text = gvAlumnos.SelectedRow.Cells(5).Text.ToString) Then
                 item.Selected = True
                 ddMunicipio.Visible = True
-                SqlDataSorceMunicipio.SelectCommand = "SELECT clave_municipio, municipio FROM Municipios WHERE (clave_estado =" + ddEstado.SelectedValue.ToString + " ) ORDER BY municipio"
+                SqlDataSorceMunicipio.SelectCommand = "SELECT clave_municipio, municipio FROM Municipios WHERE (clave_estado =" + ddEstado.SelectedValue.ToString + " ) AND (municipio='" + gvAlumnos.SelectedRow.Cells(6).Text + "')"
                 SqlDataSorceMunicipio.DataBind()
+                If (ddMunicipio.Visible = True) Then
+                    ddLocalidad.Visible = True
+                    SqlDataSourceLocalidades.SelectCommand = "SELECT dbo.Localidades.localidad, dbo.Localidades.clave_localidad
+    FROM     dbo.Estado INNER JOIN
+                      dbo.Localidades ON dbo.Estado.clave_estado = dbo.Localidades.clave_entidad INNER JOIN
+                      dbo.Municipios ON dbo.Localidades.clave_municipio = dbo.Municipios.clave_municipio AND dbo.Estado.clave_estado = dbo.Municipios.clave_estado
+    WHERE  (dbo.Estado.estado ='" + gvAlumnos.SelectedRow.Cells(5).Text + "') AND (dbo.Municipios.municipio = '" + gvAlumnos.SelectedRow.Cells(6).Text + "') AND (dbo.Localidades.localidad = '" + gvAlumnos.SelectedRow.Cells(7).Text + "')"
+                    SqlDataSourceLocalidades.DataBind()
+
+                End If
 
             End If
 
         Next
-
-        'For Each item2 As ListItem In ddMunicipio.Items
-        '    item2.Selected = False
-        '    If (item2.Text = gvAlumnos.SelectedRow.Cells(6).Text.ToString) Then
-        '        item2.Selected = True
-        '        ddLocalidad.Visible = True
-        '        SqlDataSourceLocalidades.SelectCommand = "SELECT clave_localidad, localidad FROM Localidades WHERE (clave_entidad =" + ddEstado.SelectedValue.ToString + ") AND (clave_municipio =" + ddMunicipio.SelectedValue.ToString + ") ORDER BY localidad"
-        '        SqlDataSourceLocalidades.DataBind()
-        '        MsgBox("Selecionado:" + item2.Text)
-        '    End If
-        'Next
 
 
     End Sub
