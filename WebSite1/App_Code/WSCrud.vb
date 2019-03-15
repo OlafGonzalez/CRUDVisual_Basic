@@ -19,7 +19,7 @@ Public Class WSCrud
     End Function
 
     <WebMethod>
-    Public Function Actualizar(Matricula As String, Nombre As String, Paterno As String, Materno As String, Clave_entidad As Integer, Clave_municipio As Integer, Clave_localidad As Integer) As String
+    Public Function Actualizar(Matricula As String, Nombre As String, Paterno As String, Materno As String, Clave_entidad As Integer, Clave_municipio As Integer, Clave_localidad As Integer, Telefono As String, Sexo As String) As String
         Try
             'Dim sql As String
             Dim mycmd As New SqlCommand("SPActualizar")
@@ -47,6 +47,8 @@ Public Class WSCrud
                 .Parameters.AddWithValue("@clave_entidad", Clave_entidad)
                 .Parameters.AddWithValue("@clave_municipio", Clave_municipio)
                 .Parameters.AddWithValue("@clave_localidad", Clave_localidad)
+                .Parameters.AddWithValue("@telefono", Telefono)
+                .Parameters.AddWithValue("@sexo", Sexo)
             End With
             reader = mycmd.ExecuteReader
 
@@ -92,7 +94,7 @@ Public Class WSCrud
 
 
     <WebMethod()>
-    Public Function Insertar(Matricula As String, Nombre As String, Paterno As String, Materno As String, Clave_entidad As Integer, Clave_municipio As Integer, Clave_localidad As Integer) As String
+    Public Function Insertar(Matricula As String, Nombre As String, Paterno As String, Materno As String, Clave_entidad As Integer, Clave_municipio As Integer, Clave_localidad As Integer, Telefono As String, Sexo As String) As String
         Try
             Dim mycmd As New SqlCommand("SPInsertar")
             Dim reader As SqlDataReader
@@ -108,6 +110,8 @@ Public Class WSCrud
                 .Parameters.AddWithValue("@clave_entidad", Clave_entidad)
                 .Parameters.AddWithValue("@clave_municipio", Clave_municipio)
                 .Parameters.AddWithValue("@clave_localidad", Clave_localidad)
+                .Parameters.AddWithValue("@telefono", Telefono)
+                .Parameters.AddWithValue("@sexo", Sexo)
             End With
             reader = mycmd.ExecuteReader
 
@@ -119,6 +123,39 @@ Public Class WSCrud
         End Try
         Return "Registro insertado correctamente"
     End Function
+
+
+    Public Class Crypto
+        Private Shared DES As New TripleDESCryptoServiceProvider
+        Private Shared MD5 As New MD5CryptoServiceProvider
+
+        Private Shared Function MD5Hash(ByVal value As String) As Byte()
+            Return MD5.ComputeHash(ASCIIEncoding.ASCII.GetBytes(value))
+        End Function
+
+        Public Shared Function Encrypt(ByVal stringToEncrypt As String) As String
+            Dim key As String = "LlaveProgramacionClienteServidor2"
+
+            DES.Key = Crypto.MD5Hash(key)
+            DES.Mode = CipherMode.ECB
+            Dim Buffer As Byte() = ASCIIEncoding.ASCII.GetBytes(stringToEncrypt)
+            Return Convert.ToBase64String(DES.CreateEncryptor().TransformFinalBlock(Buffer, 0, Buffer.Length))
+        End Function
+
+        Public Shared Function Decrypt(ByVal encryptedString As String) As String
+            Try
+                Dim key As String = "LlaveProgramacionClienteServidor2"
+
+                DES.Key = Crypto.MD5Hash(key)
+                DES.Mode = CipherMode.ECB
+                Dim Buffer As Byte() = Convert.FromBase64String(encryptedString)
+                Return ASCIIEncoding.ASCII.GetString(DES.CreateDecryptor().TransformFinalBlock(Buffer, 0, Buffer.Length))
+            Catch ex As Exception
+                Return "Error"
+            End Try
+        End Function
+    End Class
+
 
     Public Function get_connetionString() As String
         Dim SQLServer_Connexion_String As String

@@ -95,4 +95,32 @@
         </div>
     </form>
 </body>
+    <script>
+     function get_loc() {
+       if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(coordenadas);
+       }else{
+           alert('Este navegador es algo antiguo, actualiza para usar el API de localización');
+       }
+        }
+
+
+      function coordenadas(position) {
+      var lat = position.coords.latitude;
+      var lon = position.coords.longitude;
+      console.log("Latitud: " + lat + "Longitud: " + lon)
+          document.getElementById("MainContent_lbllatitud").innerText = lat
+          document.getElementById("MainContent_lbllongitud").innerText = lon
+          
+        }
+        //function coord(position) {
+        //    var lat = position.coords.latitude;
+        //    var lon = position.coords.longitude;
+        //    var lbllatitudd = document.getElementById('lbllatitud');
+        //    var lbllongitud = document.getElementById('lbllongitud');
+
+        //    lbllatitudd.textContent = lat;
+        //    lbllongitud.textContent = lon;
+        //}
+    </script>
 </html>
