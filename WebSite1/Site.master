@@ -59,9 +59,7 @@
                         <li><a class="navbar-brand" runat="server" href="~/">Inicio</a></li>
                         <li><a class="navbar-brand" runat="server" href="~/About">Acerca de</a></li>
                         <li><a class="navbar-brand" runat="server" href="~/Contact">Contacto</a></li>
-                        <li><a class="navbar-brand" runat="server" href="~/Alumnos/AlumnosModificar">Modificar</a></li>
                         <li><a class="navbar-brand" runat="server" href="~/Alumnos/AlumnosInsertar">CRUD</a></li>
-                        <li><a class="navbar-brand" runat="server" href="~/Alumnos/AlumnosEliminar">Eliminar</a></li>
                         <asp:LoginView runat="server" ViewStateMode="Disabled">
                         <AnonymousTemplate>
                             <ul class="navbar navbar-dark bg-dark">
@@ -108,19 +106,14 @@
       function coordenadas(position) {
       var lat = position.coords.latitude;
       var lon = position.coords.longitude;
+
+          var lat1 = lat.toFixed(5);
+          var lon1 = lon.toFixed(5);
       console.log("Latitud: " + lat + "Longitud: " + lon)
-          document.getElementById("MainContent_lbllatitud").innerText = lat
-          document.getElementById("MainContent_lbllongitud").innerText = lon
+          document.getElementById("MainContent_GoogleMap2.Latitude") = lat1
+          document.getElementById("MainContent_GoogleMap2.Longitude") = lon1
           
         }
-        //function coord(position) {
-        //    var lat = position.coords.latitude;
-        //    var lon = position.coords.longitude;
-        //    var lbllatitudd = document.getElementById('lbllatitud');
-        //    var lbllongitud = document.getElementById('lbllongitud');
 
-        //    lbllatitudd.textContent = lat;
-        //    lbllongitud.textContent = lon;
-        //}
     </script>
 </html>

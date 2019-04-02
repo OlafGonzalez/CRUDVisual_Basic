@@ -4,6 +4,8 @@ Imports System.Security.Cryptography
 Imports System.IO
 Imports System.Text
 Imports GoogleMaps
+Imports GoogleMaps.Overlays
+Imports System.Drawing
 
 Partial Class Alumnos_Default
     Inherits System.Web.UI.Page
@@ -58,11 +60,19 @@ Partial Class Alumnos_Default
         gvAlumnos.DataBind()
     End Sub
 
+    Public Function ActualizarMapa() As String()
+        GoogleMap1.Latitude = Double.Parse(lbllatitud.Text)
+        GoogleMap1.Longitude = Double.Parse(lbllongitud.Text)
+        GoogleMap1.Zoom = 17
+    End Function
+
+
+
     Private Sub ddEstado_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ddEstado.SelectedIndexChanged
         ddMunicipio.Visible = True
         SqlDataSorceMunicipio.SelectCommand = "SELECT clave_municipio, municipio FROM Municipios WHERE (clave_estado =" + ddEstado.SelectedValue.ToString + " ) ORDER BY municipio"
         SqlDataSorceMunicipio.DataBind()
-        
+
     End Sub
 
     Private Sub ddMunicipio_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ddMunicipio.SelectedIndexChanged
@@ -272,7 +282,7 @@ Partial Class Alumnos_Default
 
 
 
-    Private Sub GoogleMap1_Click(sender As Object, e As MouseEventArgs) Handles GoogleMap1.Click
+    Public Sub GoogleMap1_Click(sender As Object, e As MouseEventArgs) Handles GoogleMap1.Click
         Try
             Dim Latitud As Double
             Dim Longitud As Double
@@ -295,32 +305,15 @@ Partial Class Alumnos_Default
         Catch ex As SqlException
         Finally
         End Try
+       
+
+
+
     End Sub
 
-    Private Sub GoogleMap1_DataBinding(sender As Object, e As EventArgs) Handles GoogleMap1.DataBinding
-        Try
-            Dim Latitud As Double
-            Dim Longitud As Double
-            Dim conexion As New SqlConnection(get_connetionString())
-            conexion.Open()
-            Dim sql As String = "SELECT latitud as LAT, longitud as LONG FROM Localidades WHERE (clave_entidad = " + ddEstado.SelectedValue.ToString + ") AND (clave_municipio = " + ddMunicipio.SelectedValue.ToString + ") AND (clave_localidad =" + ddLocalidad.SelectedValue.ToString + " )"
-            Dim cmd As New SqlCommand(sql, conexion)
-            Dim myreader As SqlDataReader = cmd.ExecuteReader()
 
-            While myreader.Read()
-                Latitud = myreader("LAT")
-                Longitud = myreader("LONG")
-            End While
-            lbllatitud.Text = Latitud.ToString
-            lbllongitud.Text = Longitud.ToString
-            GoogleMap1.Longitude = Longitud
-            GoogleMap1.Latitude = Latitud
-            GoogleMap1.Zoom = 14
-            conexion.Close()
-        Catch ex As SqlException
-        Finally
-        End Try
-    End Sub
+
+
 
     Public Class Crypto
         Private Shared DES As New TripleDESCryptoServiceProvider
@@ -353,4 +346,26 @@ Partial Class Alumnos_Default
         End Function
     End Class
 
+
+    'Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+    '    Dim polygon = New GooglePolygon() With {
+    '        .ID = "Reloj Monumental de Pachuca",
+    '        .Clickable = True,
+    '        .TargetControlID = "GoogleMap1",
+    '        .FillColor = Color.Red,
+    '        .FillOpacity = 0.5F,
+    '        .StrokeColor = Color.Black,
+    '        .StrokeWeight = 1,
+    '        .Paths = New List(Of LatLng)() From {
+    '        New LatLng(20.128065, -98.731927),
+    '                New LatLng(20.12783, -98.73134),
+    '                New LatLng(20.12725, -98.731549),
+    '                New LatLng(20.127521, -98.732136)
+    '            }
+    '         }
+    '    GoogleMap1.Overlays.Add(polygon)
+    '    GoogleMap1.Zoom = 17
+    'End Sub
 End Class
+
+

@@ -86,8 +86,9 @@
         <%--<input type="hidden" id="lonID" value="" />
         <input type="hidden" id="latID" value="" />--%>
 
-      <a href="javascript:get_loc();">Mostrar localización actual</a>
-
+      <a href="javascript:get_loc();">Mostrar</a>
+<%--        <asp:Button ID="Button1" href="javascript:get_loc();" runat="server" Text="Ubicacion" />--%>
+<%--        <asp:Button ID="Button2" OnClick="get_loc();" runat="server" Text="Button" />--%>
     </div>
     <div class="container">
 
